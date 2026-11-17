@@ -83,6 +83,13 @@ class UserMailerTest < ActionMailer::TestCase
     assert_includes email.text_part.body, url
   end
 
+  def test_gpx_success_subject
+    trace = create(:trace)
+    email = UserMailer.with(:record => trace, :possible_points => 100, :recipient => trace.user).gpx_success
+
+    assert_equal "[OpenStreetMap] GPS trace processed successfully", email.subject
+  end
+
   def test_gpx_success_trace_link
     trace = create(:trace)
     email = UserMailer.with(:record => trace, :possible_points => 100, :recipient => trace.user).gpx_success
@@ -108,6 +115,8 @@ class UserMailerTest < ActionMailer::TestCase
     assert_match tag_strings[0], email.html_part.body.to_s
     assert_match tag_strings[1], email.html_part.body.to_s
     assert_match "some error", email.html_part.body.to_s
+
+    assert_equal "[OpenStreetMap] GPS trace could not be processed", email.subject
 
     assert_match trace.name, email.text_part.body.to_s
     assert_match trace.description, email.text_part.body.to_s
