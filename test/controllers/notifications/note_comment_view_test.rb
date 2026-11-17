@@ -126,5 +126,38 @@ module Notifications
         assert_not_dom "blockquote"
       end
     end
+
+    def test_render_comment_on_hidden_note
+      note = create(:note, :status => "hidden")
+      note_comment = create(:note_comment, :note => note, :author => create(:user), :body => "On a hidden note")
+
+      render_notification(note_comment, create(:user))
+      assert_not_dom "blockquote"
+      assert_dom ".web-notification p", "Unfortunately this is not available any more"
+
+      render_notification(note_comment, create(:moderator_user))
+      assert_dom "blockquote", "On a hidden note"
+    end
+
+    def test_render_hidden_comment
+      note_comment = create(:note_comment, :author => create(:user), :body => "Hidden spam", :visible => false)
+
+      render_notification(note_comment, create(:user))
+      assert_not_dom "blockquote"
+    end
+
+    def test_render_comment_from_suspended_user
+      note_comment = create(:note_comment, :author => create(:user, :suspended), :body => "Spam")
+
+      render_notification(note_comment, create(:moderator_user))
+      assert_not_dom "blockquote"
+    end
+
+    private
+
+    def render_notification(record, recipient)
+      notification = build_stubbed(:notification, :record => record, :recipient => recipient)
+      render("notifications/notification", :notification => notification)
+    end
   end
 end

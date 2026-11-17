@@ -75,5 +75,23 @@ module Notifications
 
       assert_dom ".web-notification blockquote p", :count => 3
     end
+
+    def test_render_hidden_comment
+      changeset_comment = create(:changeset_comment, :body => "Hidden spam", :visible => false)
+
+      render_notification(changeset_comment, create(:user))
+      assert_not_dom "blockquote"
+      assert_dom ".web-notification p", "Unfortunately this is not available any more"
+
+      render_notification(changeset_comment, create(:moderator_user))
+      assert_dom "blockquote", "Hidden spam"
+    end
+
+    private
+
+    def render_notification(record, recipient)
+      notification = build_stubbed(:notification, :record => record, :recipient => recipient)
+      render("notifications/notification", :notification => notification)
+    end
   end
 end
