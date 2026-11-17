@@ -124,8 +124,22 @@ module TagParser
     url_template = @tag2link_dict[key]
     return { :text => RichText.auto_link(value) } unless url_template
 
-    link = url_template.gsub("$1", value.sub(/^#/, ""))
-    { :text => value, :url => link, :type => :tag2link_link, :key => key }
+    { :text => value, :url => tag2link_url(url_template, value.sub(/^#/, "")), :type => :tag2link_link, :key => key }
+  end
+
+  private_class_method def self.tag2link_url(url_template, value)
+    query_start = url_template.index("?")
+
+    url_template.gsub("$1") do
+      # Values substituted into the query must be fully encoded, since
+      # otherwise a "+" would be decoded as a space, and "&" or "#"
+      # would break up the query.
+      if query_start && Regexp.last_match.begin(0) > query_start
+        ERB::Util.url_encode(value)
+      else
+        value
+      end
+    end
   end
 
   def self.email_link(key, value)
