@@ -44,5 +44,50 @@ module Notifications
 
       assert_dom ".web-notification blockquote p", :count => 3
     end
+
+    def test_render_hidden_comment
+      diary_comment = create(:diary_comment, :body => "Hidden spam", :visible => false)
+
+      render_notification(diary_comment, diary_comment.diary_entry.user)
+      assert_not_dom "blockquote"
+      assert_dom ".web-notification p", "Unfortunately this is not available any more"
+
+      render_notification(diary_comment, create(:moderator_user))
+      assert_dom "blockquote", "Hidden spam"
+    end
+
+    def test_render_comment_from_suspended_user
+      diary_comment = create(:diary_comment, :user => create(:user, :suspended), :body => "Spam")
+
+      render_notification(diary_comment, diary_comment.diary_entry.user)
+      assert_not_dom "blockquote"
+    end
+
+    def test_render_comment_on_hidden_entry
+      diary_entry = create(:diary_entry, :title => "Hidden title", :visible => false)
+      diary_comment = create(:diary_comment, :diary_entry => diary_entry)
+
+      render_notification(diary_comment, create(:user))
+      assert_not_dom "a", "Hidden title"
+      assert_dom ".web-notification p", "Unfortunately this is not available any more"
+
+      render_notification(diary_comment, diary_entry.user)
+      assert_dom "a", "Hidden title"
+    end
+
+    def test_render_comment_on_entry_by_deleted_user
+      diary_entry = create(:diary_entry, :user => create(:user, :deleted), :title => "Gone title")
+      diary_comment = create(:diary_comment, :diary_entry => diary_entry)
+
+      render_notification(diary_comment, create(:moderator_user))
+      assert_not_dom "a", "Gone title"
+    end
+
+    private
+
+    def render_notification(record, recipient)
+      notification = build_stubbed(:notification, :record => record, :recipient => recipient)
+      render("notifications/notification", :notification => notification)
+    end
   end
 end

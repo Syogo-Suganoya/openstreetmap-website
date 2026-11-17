@@ -14,6 +14,10 @@ FactoryBot.define do
       user.activate
     end
 
+    after(:stub) do |user, _evaluator|
+      user.activate
+    end
+
     terms_seen { true }
     terms_agreed { Time.now.utc }
     data_public { true }

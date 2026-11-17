@@ -1,7 +1,7 @@
 <%# locals: (notification:) %>
 
 <article class="web-notification">
-  <% if notification.record || !notification.record_required? %>
+  <% if notification.record ? notification.record_visible? : !notification.record_required? %>
     <%= render(
           partial_path_for_notification(notification),
           :notification => notification,

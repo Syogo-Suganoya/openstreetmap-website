@@ -5,6 +5,13 @@ class ChangesetCommentNotifier < ApplicationNotifier
 
   validates :record, :presence => true
 
+  notification_methods do
+    # Matches the comments shown on the changeset page
+    def record_visible?
+      record.visible? || recipient.moderator?
+    end
+  end
+
   deliver_by :email do |config|
     config.mailer = "UserMailer"
     config.method = "changeset_comment_notification"
