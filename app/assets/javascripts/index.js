@@ -30,6 +30,11 @@ $(function () {
     return new Promise((resolve, reject) => {
       $("#sidebar_content_frame")
         .one("turbo:frame-render", event => {
+          // Ignore content which arrives after navigating away, for example
+          // by closing the sidebar while it was loading, so that the page
+          // being left doesn't set the title or add its object to the map
+          if (new URL(path, location.href).pathname !== location.pathname) return;
+
           const response = event.originalEvent.detail.fetchResponse.response;
 
           const title = response.headers.get("X-Page-Title");
