@@ -388,6 +388,22 @@ class UsersControllerTest < ActionDispatch::IntegrationTest
     assert_select ".card-title a", "Third Entry"
     assert_select ".card-title a", "Second Entry"
     assert_select ".card-title a", { :text => "First Entry", :count => 0 }
+
+    # Should link to the rest of the entries
+    assert_select "a.profile-diaries-more[href='#{user_diary_entries_path(user)}']", "See all diary entries"
+  end
+
+  def test_show_profile_diaries_without_more_entries
+    user = create(:user)
+    create_list(:diary_entry, 4, :user => user)
+    create(:diary_entry, :user => user, :visible => false)
+
+    get user_path(user)
+    assert_response :success
+
+    # Hidden entries don't count, so there is nothing more to see
+    assert_select ".profile-diary-card", 4
+    assert_select "a.profile-diaries-more", 0
   end
 
   def test_show_profile_diaries_with_comments

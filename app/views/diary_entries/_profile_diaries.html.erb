@@ -29,4 +29,9 @@
       </div>
     <% end %>
   </div>
+  <% if user.diary_entries.visible.count > diary_entries.length %>
+    <div class="mt-3">
+      <%= link_to t(".all_diary_entries"), user_diary_entries_path(user), :class => "profile-diaries-more" %>
+    </div>
+  <% end %>
 <% end %>

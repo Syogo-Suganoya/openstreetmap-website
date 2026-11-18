@@ -793,6 +793,7 @@ en:
       new_title: Compose a new entry in my user diary
     profile_diaries:
       latest_diaries: "Latest Diaries"
+      all_diary_entries: "See all diary entries"
       comments:
         one: "%{count} comment"
         other: "%{count} comments"
