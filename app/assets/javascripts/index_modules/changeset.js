@@ -17,7 +17,6 @@ export default function (map) {
 
     init() {
       const changesetData = content.find("[data-changeset]").data("changeset");
-      changesetData.type = "changeset";
 
       const hashParams = OSM.parseHash();
       content.find("button[data-method][data-url]").on("click", e => {
@@ -61,13 +60,17 @@ export default function (map) {
       });
 
       content.find("textarea").val("").trigger("input");
-      map.addObject(changesetData, function (bounds) {
-        if (!hashParams.center && bounds.isValid()) {
-          OSM.router.withoutMoveListener(function () {
-            map.fitBounds(bounds);
-          });
-        }
-      });
+      // There is no changeset data when the sidebar shows a "not found" page
+      if (changesetData) {
+        changesetData.type = "changeset";
+        map.addObject(changesetData, function (bounds) {
+          if (!hashParams.center && bounds.isValid()) {
+            OSM.router.withoutMoveListener(function () {
+              map.fitBounds(bounds);
+            });
+          }
+        });
+      }
       $(".numbered_pagination").trigger("numbered_pagination:enable");
     },
 
