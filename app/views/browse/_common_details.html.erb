@@ -20,7 +20,8 @@
           :user => changeset_user_link(common_details.changeset) %>
   </div>
   <%= render "changesets/changeset_line", :changeset => common_details.changeset,
-                                          :show_num_changes => false do %>
+                                          :show_num_changes => false,
+                                          :link_num_comments => true do %>
     <%= t "browse.in_changeset" %>
     #<%= link_to common_details.changeset_id, common_details.changeset %>
   <% end %>
