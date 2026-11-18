@@ -23,4 +23,27 @@ class ContextMenuTest < ApplicationSystemTestCase
   ensure
     page.current_window.resize_to(*original_size) if original_size
   end
+
+  test "disabled context menu items explain why they are disabled" do
+    visit "/#map=11/51.76320/-0.00760"
+
+    find_by_id("map").right_click
+
+    within "#map-context-menu" do
+      assert_selector "li[title='Zoom in to add a note to the map'] > a.disabled", :text => "Add a note here"
+      assert_selector "li[title='Zoom in to query features'] > a.disabled", :text => "Query features"
+      assert_no_selector "li[title]", :text => "Show address"
+    end
+  end
+
+  test "enabled context menu items have no disabled explanation" do
+    visit "/#map=15/51.76320/-0.00760"
+
+    find_by_id("map").right_click
+
+    within "#map-context-menu" do
+      assert_link "Query features"
+      assert_no_selector "li[title]"
+    end
+  end
 end

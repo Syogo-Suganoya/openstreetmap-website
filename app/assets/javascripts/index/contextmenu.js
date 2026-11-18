@@ -2,15 +2,18 @@ OSM.initializations.push(function (map) {
   const $contextMenu = $("#map-context-menu");
   map.osm_contextmenu = new OSM.ContextMenu(map, $contextMenu);
 
-  const toggleMenuItem = ($element, enable) => {
+  const toggleMenuItem = ($element, enable, disabledTooltip) => {
     $element.toggleClass("disabled", !enable)
       .attr("aria-disabled", enable ? null : "true");
+    // Disabled dropdown items ignore pointer events, so put the
+    // explanation on the list item to have it shown on hover
+    $element.parent().attr("title", enable ? null : OSM.i18n.t(disabledTooltip));
   };
 
   const updateContextMenuState = () => {
     const zoom = map.getZoom();
-    toggleMenuItem($("#menu-action-add-note"), zoom >= 12);
-    toggleMenuItem($("#menu-action-query-features"), zoom >= 14);
+    toggleMenuItem($("#menu-action-add-note"), zoom >= 12, "javascripts.site.createnote_disabled_tooltip");
+    toggleMenuItem($("#menu-action-query-features"), zoom >= 14, "javascripts.site.queryfeature_disabled_tooltip");
   };
 
   const getDirectionsCoordinates = ($input) => {
