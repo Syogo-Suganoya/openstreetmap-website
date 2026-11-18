@@ -46,6 +46,13 @@ $(function () {
   };
 
   $("#sidebar_content_frame")
+    .on("turbo:frame-missing", event => {
+      // The response was a full page rather than sidebar content, such as
+      // a "no such user" page or a redirect to the login page, so load it
+      // as a full page instead of showing "Content missing" in the sidebar
+      event.preventDefault();
+      location.assign(event.originalEvent.detail.response.url);
+    })
     .on("turbo:before-fetch-response", () => $("#flash").empty())
     .on("turbo:before-frame-render", event => {
       const atomSelector = "link[type='application/atom+xml']";

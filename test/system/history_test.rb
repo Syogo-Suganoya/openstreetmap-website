@@ -20,6 +20,32 @@ class HistoryTest < ApplicationSystemTestCase
     assert_css "link[type='application/atom+xml'][href$='#{user_path(user)}/history/feed']", :visible => :hidden
   end
 
+  test "navigating to the history of a missing user shows the no such user page" do
+    visit history_path
+
+    within_sidebar do
+      assert_text "Changesets"
+    end
+
+    execute_script "OSM.router.route('/user/nosuchuser/history')"
+
+    assert_text "The user nosuchuser does not exist"
+    assert_no_text "Content missing"
+  end
+
+  test "navigating to friends' history when logged out shows the login page" do
+    visit history_path
+
+    within_sidebar do
+      assert_text "Changesets"
+    end
+
+    execute_script "OSM.router.route('/history/friends')"
+
+    assert_current_path %r{\A/login}
+    assert_no_text "Content missing"
+  end
+
   test "have only one list element on user's changesets page" do
     user = create(:user)
     create_visible_changeset(user, "first-changeset-in-history")
