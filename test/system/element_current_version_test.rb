@@ -350,4 +350,26 @@ class ElementCurrentVersionTest < ApplicationSystemTestCase
     share_url = find_by_id("long_input").value
     assert_match %r{map=\d+/59\.\d+/29\.\d+}, share_url
   end
+
+  test "closing the sidebar while a node is loading keeps the page title" do
+    node = create(:node, :lat => 60, :lon => 30)
+
+    visit root_path(:anchor => "map=17/60/30")
+    assert_title "OpenStreetMap", :exact => true
+    page.execute_script(<<~JS)
+      const originalFetch = window.fetch;
+      window.fetch = function (url, options) {
+        if (new URL(String(url), location.href).pathname !== "#{node_path(node)}") return originalFetch.apply(this, arguments);
+        return new Promise(resolve => setTimeout(resolve, 1000))
+          .then(() => originalFetch.call(this, url, options))
+          // Leave time for the sidebar to render and the node to be fetched
+          .finally(() => setTimeout(() => { document.body.dataset.delayedSidebarLoaded = "true"; }, 2000));
+      };
+      OSM.router.route("#{node_path(node)}");
+    JS
+    find("#sidebar .sidebar-close-controls button[aria-label='Close']").click
+
+    assert_selector "body[data-delayed-sidebar-loaded]", :visible => :all, :wait => 10
+    assert_title "OpenStreetMap", :exact => true
+  end
 end
