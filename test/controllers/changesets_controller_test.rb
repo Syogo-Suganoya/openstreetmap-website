@@ -55,6 +55,10 @@ class ChangesetsControllerTest < ActionDispatch::IntegrationTest
     assert_template "index"
 
     check_index_result(changesets.last(20))
+
+    # Each list entry is already a link to its changeset
+    assert_select "span.changeset_num_comments", :count => 20
+    assert_select "a.changeset_num_comments", :count => 0
   end
 
   ##

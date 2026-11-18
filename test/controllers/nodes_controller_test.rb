@@ -17,6 +17,15 @@ class NodesControllerTest < ActionDispatch::IntegrationTest
     sidebar_browse_check :node_path, node.id, "elements/show"
   end
 
+  def test_show_links_changeset_comment_count
+    node = create(:node)
+    create_list(:changeset_comment, 2, :changeset => node.changeset)
+
+    get node_path(node)
+    assert_response :success
+    assert_select "a.changeset_num_comments[href='#{changeset_path(node.changeset)}'][title='2 comments']", :text => "2"
+  end
+
   def test_show_timeout
     node = create(:node)
     with_settings(:web_timeout => -1) do
